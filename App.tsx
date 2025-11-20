@@ -10,7 +10,7 @@ import { soundManager } from './utils/sound';
 import { Flame, RefreshCw, Volume2, VolumeX } from 'lucide-react';
 
 const SESSION_DURATION = 12 * 60; 
-const BURN_ANIMATION_DURATION_MS = 6000; // 6 seconds for faster burn
+const BURN_ANIMATION_DURATION_MS = 3000; // 3 seconds for faster burn
 const IGNITION_DELAY_MS = 1500; // Time for candle to slide up before burn starts
 
 const App: React.FC = () => {
@@ -62,6 +62,7 @@ const App: React.FC = () => {
       // 2. Ignition Delay: Wait for candle to reach paper, then start burn
       const ignitionTimer = setTimeout(() => {
           setIsBurning(true);
+          soundManager.setBurning(true);
       }, IGNITION_DELAY_MS);
 
       // 3. Completion: End after burn duration
@@ -78,6 +79,8 @@ const App: React.FC = () => {
       return () => {
           clearTimeout(ignitionTimer);
           clearTimeout(completionTimer);
+          // Ensure burn sound stops if we leave the state early or complete
+          soundManager.setBurning(false);
       };
     }
   }, [appState]);
@@ -101,6 +104,7 @@ const App: React.FC = () => {
     setAppState(AppState.WRITING);
     setBurnSequenceStarted(false);
     setIsBurning(false);
+    soundManager.setBurning(false); // Double check sound is off
   };
 
   return (
@@ -116,7 +120,7 @@ const App: React.FC = () => {
               <button 
                 onClick={toggleMute}
                 className="p-2 rounded-full hover:bg-white/5 transition-colors"
-                title={isMuted ? "Unmute ambience" : "Mute ambience"}
+                title={isMuted ? "Unmute sounds" : "Mute sounds"}
               >
                 {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
               </button>
@@ -253,7 +257,7 @@ const App: React.FC = () => {
                </div>
 
                <div className="space-y-6">
-                   <p className="text-3xl md:text-4xl font-journal text-orange-100 leading-relaxed drop-shadow-md">
+                   <p className="text-xl md:text-2xl font-journal text-orange-100 leading-relaxed drop-shadow-md px-8">
                        "{comfortMessage || "The smoke has cleared. Your burden is lighter."}"
                    </p>
                    <div className="h-px w-32 bg-gradient-to-r from-transparent via-orange-500/40 to-transparent mx-auto"></div>
