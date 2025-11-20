@@ -62,8 +62,9 @@
       }
 
       .burning-paper-mask {
-        -webkit-mask-image: linear-gradient(to top, transparent 50%, black 50%);
-        mask-image: linear-gradient(to top, transparent 50%, black 50%);
+        /* Softened edge (48% to 52%) to blend better with jagged overlay */
+        -webkit-mask-image: linear-gradient(to top, transparent 48%, black 52%);
+        mask-image: linear-gradient(to top, transparent 48%, black 52%);
         -webkit-mask-size: 100% 200%;
         mask-size: 100% 200%;
         -webkit-mask-repeat: no-repeat;
@@ -101,8 +102,31 @@
       .char-distortion {
         filter: url(#char-noise);
       }
+
+      /* 
+        Global distortion for the paper when burning.
+        Simulates heat haze and curling paper edges.
+      */
+      .heat-distortion {
+        filter: url(#heat-haze);
+      }
     </style>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@opentelemetry/api": "https://esm.sh/@opentelemetry/api@1.9.0",
+    "@opentelemetry/sdk-trace-web": "https://esm.sh/@opentelemetry/sdk-trace-web@1.25.1",
+    "@opentelemetry/sdk-trace-base": "https://esm.sh/@opentelemetry/sdk-trace-base@1.25.1",
+    "@opentelemetry/resources": "https://esm.sh/@opentelemetry/resources@1.25.1",
+    "@opentelemetry/core": "https://esm.sh/@opentelemetry/core@1.25.1"
+  }
+}
+</script>
+</head>
   <body>
     <!-- SVG Filters for Distortion Effects -->
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
@@ -130,9 +154,16 @@
                 <feFuncB type="linear" slope="0.1"/>
             </feComponentTransfer>
         </filter>
+
+        <!-- Heat Haze / Paper Curl Distortion -->
+        <filter id="heat-haze" x="-20%" y="0%" width="140%" height="100%">
+           <!-- Low frequency Y noise creates 'waves' (curls) across the paper -->
+           <feTurbulence type="fractalNoise" baseFrequency="0.02 0.004" numOctaves="3" result="noise" />
+           <!-- Large scale displacement to physically warp the container -->
+           <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
       </defs>
     </svg>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

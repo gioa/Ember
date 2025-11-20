@@ -158,8 +158,11 @@ const App: React.FC = () => {
             {/* Paper & Candle Container */}
             <div className="relative w-full h-[65vh] flex justify-center perspective-1000 group">
                 
-                {/* Wrapper for Paper and Overlays - Keeps them aligned */}
-                <div className="relative w-full max-w-2xl h-full z-20">
+                {/* 
+                    Wrapper for Paper and Overlays.
+                    Removed 'heat-distortion' from here to prevent top of paper from wobbling.
+                */}
+                <div className="relative w-full max-w-2xl h-full z-20 transition-all duration-500">
                     
                     {/* 
                        THE PAPER
@@ -207,22 +210,27 @@ const App: React.FC = () => {
                     {/* 
                         FIRE LINE & ASHES 
                         Moves from bottom to top.
-                        This container matches the position of the "mask edge".
+                        Apply heat-distortion HERE to distort the flames and char line, but not the top of the paper.
                     */}
                     {isBurning && (
                         <div className="absolute inset-0 pointer-events-none z-30 overflow-visible">
-                            <div className="absolute left-0 right-0 h-32 fire-line-anim translate-y-1/2">
+                            <div className={`absolute left-0 right-0 h-40 fire-line-anim translate-y-1/3 ${isBurning ? 'heat-distortion' : ''}`}>
                                  
-                                {/* 1. The Char Line (Burnt edge) */}
-                                <div className="absolute bottom-[50%] w-full h-6 bg-black char-distortion blur-[1px] opacity-80"></div>
+                                {/* 1. Jagged Char Line (Replaces straight div) */}
+                                <div className="absolute bottom-[45%] w-full h-20 char-distortion opacity-90">
+                                   {/* Using SVG to create a naturally uneven edge. Path draws a jagged mountain shape to simulate bites taken out of paper. */}
+                                   <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full fill-black">
+                                      <path d="M0 20 L0 10 C 5 2, 15 18, 25 10 C 35 2, 45 18, 55 8 C 65 0, 75 15, 85 5 C 90 0, 95 12, 100 8 L 100 20 Z" />
+                                   </svg>
+                                </div>
 
                                 {/* 2. The Flame Glow (Main fire body) */}
-                                <div className="absolute bottom-[20%] w-full h-24 bg-gradient-to-t from-orange-600 via-orange-500 to-yellow-300 fire-distortion mix-blend-screen opacity-90"></div>
+                                <div className="absolute bottom-[15%] w-full h-32 bg-gradient-to-t from-orange-600 via-orange-500 to-yellow-300 fire-distortion mix-blend-screen opacity-90"></div>
                                 
                                 {/* 3. Secondary Glow (Wide ambient light) */}
-                                <div className="absolute bottom-0 w-full h-40 bg-orange-600/40 blur-3xl rounded-[50%]"></div>
+                                <div className="absolute bottom-0 w-full h-48 bg-orange-600/40 blur-3xl rounded-[50%]"></div>
                                 
-                                {/* 4. Particles Emitter (Attached to this moving line) */}
+                                {/* 4. Particles Emitter */}
                                 <AshParticles />
                             </div>
                         </div>
@@ -232,9 +240,6 @@ const App: React.FC = () => {
 
                 {/* 
                     THE CANDLE 
-                    Starts hidden below.
-                    Slides up to touch the bottom of the paper (translate-y of -50% of its own height roughly places it correctly if positioned at bottom 0).
-                    Adjust translate-y to perfectly kiss the bottom of the paper container.
                 */}
                 <div className={`
                     absolute bottom-0 left-1/2 -translate-x-1/2 z-40
