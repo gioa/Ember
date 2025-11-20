@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ember - Release Your Worries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        overflow: hidden;
+      }
+      
+      .font-journal {
+        font-family: 'Lora', serif;
+      }
+      
+      /* Scrollbar */
+      .note-scroll::-webkit-scrollbar { width: 6px; }
+      .note-scroll::-webkit-scrollbar-track { background: transparent; }
+      .note-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+
+      /* Candle Flame */
+      @keyframes flicker {
+        0%, 100% { transform: scale(1); opacity: 0.9; }
+        25% { transform: scale(1.1, 0.9); opacity: 0.8; }
+        50% { transform: scale(0.9, 1.1); opacity: 1; }
+        75% { transform: scale(1.05, 0.95); opacity: 0.85; }
+      }
+      .flame-flicker {
+        animation: flicker 3s infinite ease-in-out;
+        transform-origin: center bottom;
+      }
+
+      /* Ash Particles */
+      @keyframes floatUp {
+        0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-150px) translateX(var(--tw-translate-x, 20px)) rotate(var(--tw-rotate, 180deg)); opacity: 0; }
+      }
+      .ash-particle {
+        animation: floatUp linear forwards;
+      }
+
+      /* REALISTIC BURN EFFECT */
+      
+      /* 
+         The Mask:
+         Gradient: Bottom (Transparent) -> Top (Black).
+         
+         Start State (Visible): 0% 0% (Top aligned). We see the Black top half.
+         End State (Invisible): 0% 100% (Bottom aligned). We see the Transparent bottom half.
+         
+         This effectively slides the mask UP relative to the content, so the bottom
+         turns transparent first.
+      */
+      @keyframes burnUpMask {
+        0% { -webkit-mask-position: 0% 0%; mask-position: 0% 0%; }
+        100% { -webkit-mask-position: 0% 100%; mask-position: 0% 100%; }
+      }
+
+      .burning-paper-mask {
+        -webkit-mask-image: linear-gradient(to top, transparent 50%, black 50%);
+        mask-image: linear-gradient(to top, transparent 50%, black 50%);
+        -webkit-mask-size: 100% 200%;
+        mask-size: 100% 200%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: 0% 0%; 
+        mask-position: 0% 0%;
+      }
+
+      .animate-burn-mask {
+        animation: burnUpMask 6s forwards linear;
+      }
+
+      /* 
+         The Fire Line Container:
+         Moves from Bottom (0%) to Top (100%).
+         We use 'bottom' positioning to slide it up.
+      */
+      @keyframes moveFireUp {
+        0% { bottom: 0%; opacity: 1; }
+        100% { bottom: 100%; opacity: 0; } /* Fade out slightly at the very top */
+      }
+
+      .fire-line-anim {
+        animation: moveFireUp 6s forwards linear;
+      }
+
+      /* 
+        Distortion Filter for Fire 
+        We use the SVG filter #wavy defined in the body
+      */
+      .fire-distortion {
+        filter: url(#wavy);
+      }
+      
+      .char-distortion {
+        filter: url(#char-noise);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@opentelemetry/api": "https://esm.sh/@opentelemetry/api@1.9.0",
+    "@opentelemetry/sdk-trace-web": "https://esm.sh/@opentelemetry/sdk-trace-web@1.25.1",
+    "@opentelemetry/sdk-trace-base": "https://esm.sh/@opentelemetry/sdk-trace-base@1.25.1",
+    "@opentelemetry/resources": "https://esm.sh/@opentelemetry/resources@1.25.1",
+    "@opentelemetry/core": "https://esm.sh/@opentelemetry/core@1.25.1"
+  }
+}
+</script>
+</head>
+  <body>
+    <!-- SVG Filters for Distortion Effects -->
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+      <defs>
+        <!-- Heavy turbulence for fire flames -->
+        <filter id="wavy" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="4" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" />
+          <feGaussianBlur stdDeviation="2" />
+        </filter>
+        
+        <!-- Rough noise for the char line/burnt edges -->
+        <filter id="char-noise">
+           <feTurbulence type="fractalNoise" baseFrequency="0.1" numOctaves="5" />
+           <feDisplacementMap in="SourceGraphic" scale="15" />
+        </filter>
+
+        <!-- Paper texture -->
+        <filter id="paper-noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+                <feFuncR type="linear" slope="0.1"/>
+                <feFuncG type="linear" slope="0.1"/>
+                <feFuncB type="linear" slope="0.1"/>
+            </feComponentTransfer>
+        </filter>
+      </defs>
+    </svg>
+    <div id="root"></div>
+  </body>
+</html>

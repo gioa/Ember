@@ -1,0 +1,5 @@
+{
+  "name": "Ember - Worry Release",
+  "description": "A therapeutic distressed journaling app where users write down their troubles for a set time, then visually burn the digital note to ash, receiving a comforting message of release.",
+  "requestFramePermissions": []
+}
