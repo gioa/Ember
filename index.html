@@ -102,22 +102,7 @@
         filter: url(#char-noise);
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@opentelemetry/api": "https://esm.sh/@opentelemetry/api@1.9.0",
-    "@opentelemetry/sdk-trace-web": "https://esm.sh/@opentelemetry/sdk-trace-web@1.25.1",
-    "@opentelemetry/sdk-trace-base": "https://esm.sh/@opentelemetry/sdk-trace-base@1.25.1",
-    "@opentelemetry/resources": "https://esm.sh/@opentelemetry/resources@1.25.1",
-    "@opentelemetry/core": "https://esm.sh/@opentelemetry/core@1.25.1"
-  }
-}
-</script>
-</head>
+  </head>
   <body>
     <!-- SVG Filters for Distortion Effects -->
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
@@ -148,5 +133,6 @@
       </defs>
     </svg>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
